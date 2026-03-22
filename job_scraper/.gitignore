@@ -1,0 +1,6 @@
+output/
+data/profile.json
+data/companies.json
+__pycache__/
+*.pyc
+.env

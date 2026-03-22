@@ -1,0 +1,27 @@
+{
+  "name": "Max Mustermann",
+  "desired_roles": [
+    "Software Engineer",
+    "Backend Developer",
+    "Python Developer",
+    "Full Stack Developer"
+  ],
+  "skills": [
+    "Python",
+    "FastAPI",
+    "Django",
+    "PostgreSQL",
+    "Docker",
+    "Kubernetes",
+    "REST APIs",
+    "Git",
+    "Linux",
+    "AWS"
+  ],
+  "experience_years": 5,
+  "education": "Bachelor in Computer Science",
+  "languages": ["German (native)", "English (fluent)"],
+  "preferred_locations": ["Berlin", "Munich", "Hamburg", "Remote"],
+  "employment_type_preference": ["Full-time", "Remote", "Hybrid"],
+  "additional_info": "Looking for a role in a product-focused company with modern tech stack. Interested in microservices, cloud infrastructure, and developer tooling. Open to relocation within Germany."
+}
