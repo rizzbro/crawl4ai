@@ -77,6 +77,11 @@ def parse_args() -> argparse.Namespace:
         help="Print detailed progress output.",
     )
     parser.add_argument(
+        "--debug-urls",
+        action="store_true",
+        help="Print all crawled URLs without running LLM extraction (fast debug mode).",
+    )
+    parser.add_argument(
         "--list-providers",
         action="store_true",
         help="List all available LLM providers and exit.",
@@ -154,6 +159,7 @@ async def run(args: argparse.Namespace) -> None:
                     llm_config=llm_config,
                     max_depth=args.max_depth,
                     verbose=args.verbose,
+                    debug_urls=args.debug_urls,
                 )
             except Exception as e:
                 print(f"  [WARNING] Crawling failed for {company.name}: {e}")

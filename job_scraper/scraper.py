@@ -108,6 +108,7 @@ async def crawl_company(
     llm_config: LLMConfig,
     max_depth: int = 2,
     verbose: bool = False,
+    debug_urls: bool = False,
 ) -> List[JobListing]:
     """
     Deep-crawl a company's career page and return all extracted job listings.
@@ -144,7 +145,7 @@ async def crawl_company(
         weight=0.8,
     )
 
-    extraction_strategy = LLMExtractionStrategy(
+    extraction_strategy = None if debug_urls else LLMExtractionStrategy(
         llm_config=llm_config,
         schema=JobListings.model_json_schema(),
         extraction_type="schema",
@@ -168,7 +169,7 @@ async def crawl_company(
             include_external=False,
         ),
         extraction_strategy=extraction_strategy,
-        markdown_generator=DefaultMarkdownGenerator(content_filter=content_filter),
+        markdown_generator=DefaultMarkdownGenerator(content_filter=content_filter) if not debug_urls else None,
         cache_mode=CacheMode.ENABLED,
         verbose=verbose,
         page_timeout=30000,
@@ -183,10 +184,17 @@ async def crawl_company(
     if not isinstance(results, list):
         results = [results]
 
+    if debug_urls:
+        print(f"\n  === Gecrawlte URLs ({len(results)} Seiten) ===")
+        for r in results:
+            status = "OK " if r.success else "ERR"
+            print(f"  [{status}] {r.url}")
+        print()
+
     all_jobs: List[JobListing] = []
     for result in results:
         jobs = _parse_jobs_from_result(result)
-        if verbose and jobs:
+        if (verbose or debug_urls) and jobs:
             print(f"    Found {len(jobs)} job(s) on {result.url}")
         all_jobs.extend(jobs)
 
