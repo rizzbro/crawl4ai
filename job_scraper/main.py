@@ -13,8 +13,15 @@ Usage examples:
 import argparse
 import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
+
+# Suppress noisy litellm / httpx output
+logging.getLogger("LiteLLM").setLevel(logging.ERROR)
+logging.getLogger("litellm").setLevel(logging.ERROR)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 from crawl4ai import AsyncWebCrawler, BrowserConfig
 
