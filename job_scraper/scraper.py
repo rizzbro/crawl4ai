@@ -18,7 +18,7 @@ from crawl4ai.deep_crawling import (
 )
 from crawl4ai import LLMConfig
 
-from models import Company, JobListing
+from models import Company, JobListing, JobListings
 
 
 EXTRACTION_INSTRUCTION = """
@@ -59,7 +59,13 @@ def _parse_jobs_from_result(result) -> List[JobListing]:
     except json.JSONDecodeError:
         return []
 
-    items = data if isinstance(data, list) else [data]
+    # Handle both wrapped {"jobs": [...]} and bare list/dict formats
+    if isinstance(data, dict) and "jobs" in data:
+        items = data["jobs"]
+    elif isinstance(data, list):
+        items = data
+    else:
+        items = [data]
     jobs = []
     valid_fields = set(JobListing.model_fields.keys())
 
@@ -140,18 +146,18 @@ async def crawl_company(
 
     extraction_strategy = LLMExtractionStrategy(
         llm_config=llm_config,
-        schema=JobListing.model_json_schema(),
+        schema=JobListings.model_json_schema(),
         extraction_type="schema",
         instruction=EXTRACTION_INSTRUCTION,
         apply_chunking=False,
         input_format="markdown",
-        extra_args={"temperature": 0, "max_tokens": 4000},
+        extra_args={"temperature": 0, "max_tokens": 8000},
         verbose=verbose,
     )
 
     content_filter = BM25ContentFilter(
         user_query="job position opening career requirements qualifications stelle bewerbung",
-        bm25_threshold=0.5,
+        bm25_threshold=0.2,
     )
 
     config = CrawlerRunConfig(

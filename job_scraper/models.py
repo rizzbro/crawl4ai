@@ -33,6 +33,11 @@ class MatchResult(BaseModel):
     reason: str          # Brief explanation from LLM
 
 
+class JobListings(BaseModel):
+    """Wrapper so LLMExtractionStrategy returns a typed list of jobs."""
+    jobs: List[JobListing]
+
+
 class Company(BaseModel):
     name: str
     career_url: str
