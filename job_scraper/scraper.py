@@ -49,14 +49,26 @@ def _extract_domain(url: str) -> str:
 
 
 
-def _parse_jobs_from_result(result) -> List[JobListing]:
+def _parse_jobs_from_result(result, debug: bool = False) -> List[JobListing]:
     """Parse extracted content from a single crawl result into JobListing objects."""
-    if not result.success or not result.extracted_content:
+    if not result.success:
+        if debug:
+            print(f"    [SKIP] {result.url} — crawl failed")
         return []
+    if not result.extracted_content:
+        if debug:
+            print(f"    [EMPTY] {result.url} — no extracted_content")
+        return []
+
+    if debug:
+        preview = result.extracted_content[:300].replace("\n", " ")
+        print(f"    [RAW] {result.url}\n          {preview}...")
 
     try:
         data = json.loads(result.extracted_content)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        if debug:
+            print(f"    [JSON ERROR] {result.url}: {e}")
         return []
 
     # Handle both wrapped {"jobs": [...]} and bare list/dict formats
@@ -193,9 +205,9 @@ async def crawl_company(
 
     all_jobs: List[JobListing] = []
     for result in results:
-        jobs = _parse_jobs_from_result(result)
-        if (verbose or debug_urls) and jobs:
-            print(f"    Found {len(jobs)} job(s) on {result.url}")
+        jobs = _parse_jobs_from_result(result, debug=verbose)
+        if jobs:
+            print(f"    [+] {len(jobs)} job(s) on {result.url}")
         all_jobs.extend(jobs)
 
     unique_jobs = _deduplicate_jobs(all_jobs)

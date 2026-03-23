@@ -182,8 +182,11 @@ async def run(args: argparse.Namespace) -> None:
                     threshold=args.threshold,
                 )
 
+                # Always show all scores so we can diagnose threshold issues
+                marker = "✓" if match.is_match else "✗"
+                print(f"  {marker} [{match.score}/10] {job.title}")
                 if args.verbose:
-                    print(f"    [{match.score}/10] {job.title} — {match.reason[:80]}...")
+                    print(f"      {match.reason[:120]}")
 
                 if match.is_match:
                     file_path = save_job(
