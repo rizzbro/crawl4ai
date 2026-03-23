@@ -1,5 +1,6 @@
 """LLM-based job-profile matching. Scores each job 1-10 against the user profile."""
 import json
+import time
 from typing import Optional
 
 from crawl4ai import LLMConfig
@@ -95,6 +96,7 @@ def match_job_to_profile(
         MatchResult with score, is_match flag, and reason.
     """
     from litellm import completion
+    from litellm.exceptions import RateLimitError
 
     profile_text = _profile_to_text(profile)
     job_text = _job_to_text(job)
@@ -105,35 +107,41 @@ def match_job_to_profile(
         threshold=threshold,
     )
 
-    try:
-        response = completion(
-            model=llm_config.provider,
-            messages=[{"role": "user", "content": prompt}],
-            api_key=llm_config.api_token,
-            temperature=0,
-            max_tokens=500,
-        )
+    for attempt in range(4):
+        try:
+            response = completion(
+                model=llm_config.provider,
+                messages=[{"role": "user", "content": prompt}],
+                api_key=llm_config.api_token,
+                temperature=0,
+                max_tokens=500,
+            )
 
-        content = response.choices[0].message.content.strip()
+            content = response.choices[0].message.content.strip()
 
-        # Extract JSON from response (handle potential markdown code blocks)
-        if "```" in content:
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-            content = content.strip()
+            # Extract JSON from response (handle potential markdown code blocks)
+            if "```" in content:
+                content = content.split("```")[1]
+                if content.startswith("json"):
+                    content = content[4:]
+                content = content.strip()
 
-        data = json.loads(content)
-        score = int(data.get("score", 0))
-        is_match = bool(data.get("is_match", score >= threshold))
-        reason = str(data.get("reason", "No reason provided."))
+            data = json.loads(content)
+            score = int(data.get("score", 0))
+            is_match = bool(data.get("is_match", score >= threshold))
+            reason = str(data.get("reason", "No reason provided."))
 
-        return MatchResult(score=score, is_match=is_match, reason=reason)
+            return MatchResult(score=score, is_match=is_match, reason=reason)
 
-    except Exception as e:
-        # On error, return a conservative non-match result
-        return MatchResult(
-            score=0,
-            is_match=False,
-            reason=f"Matching failed due to an error: {e}",
-        )
+        except RateLimitError:
+            wait = 2 ** (attempt + 1)  # 2s, 4s, 8s, 16s
+            print(f"  [RATE LIMIT] Warte {wait}s...")
+            time.sleep(wait)
+        except Exception as e:
+            return MatchResult(
+                score=0,
+                is_match=False,
+                reason=f"Matching failed due to an error: {e}",
+            )
+
+    return MatchResult(score=0, is_match=False, reason="Rate limit: max retries exceeded.")
