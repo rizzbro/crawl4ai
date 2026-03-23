@@ -15,14 +15,14 @@ PROVIDERS = {
         "description": "Local Ollama with Mistral",
     },
     "anthropic": {
-        "provider": "anthropic/claude-3-5-sonnet-20240620",
+        "provider": "anthropic/claude-3-5-sonnet-20241022",
         "api_token_env": "ANTHROPIC_API_KEY",
         "description": "Anthropic Claude 3.5 Sonnet",
     },
     "anthropic-haiku": {
-        "provider": "anthropic/claude-3-haiku-20240307",
+        "provider": "anthropic/claude-haiku-4-5-20251001",
         "api_token_env": "ANTHROPIC_API_KEY",
-        "description": "Anthropic Claude 3 Haiku (faster, cheaper)",
+        "description": "Anthropic Claude Haiku 4.5 (faster, cheaper)",
     },
     "openai": {
         "provider": "openai/gpt-4o-mini",
