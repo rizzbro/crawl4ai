@@ -15,9 +15,9 @@ PROVIDERS = {
         "description": "Local Ollama with Mistral",
     },
     "anthropic": {
-        "provider": "anthropic/claude-3-5-sonnet-20241022",
+        "provider": "anthropic/claude-sonnet-4-5",
         "api_token_env": "ANTHROPIC_API_KEY",
-        "description": "Anthropic Claude 3.5 Sonnet",
+        "description": "Anthropic Claude Sonnet 4.5",
     },
     "anthropic-haiku": {
         "provider": "anthropic/claude-haiku-4-5-20251001",
