@@ -182,9 +182,10 @@ async def crawl_company(
         ),
         extraction_strategy=extraction_strategy,
         markdown_generator=DefaultMarkdownGenerator(content_filter=content_filter) if not debug_urls else None,
-        cache_mode=CacheMode.ENABLED,
+        cache_mode=CacheMode.BYPASS,  # don't serve stale cache for job listings
         verbose=verbose,
-        page_timeout=30000,
+        page_timeout=60000,           # SPAs need more time
+        wait_until="networkidle",     # wait for JS/API calls to finish
     )
 
     if verbose:
