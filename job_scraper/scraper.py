@@ -196,11 +196,17 @@ async def crawl_company(
     if not isinstance(results, list):
         results = [results]
 
+    print(f"  → Deep crawl returned {len(results)} page(s)")
     if debug_urls:
         print(f"\n  === Gecrawlte URLs ({len(results)} Seiten) ===")
-        for r in results:
+    for r in results:
+        has_content = bool(r.extracted_content) if not debug_urls else None
+        if debug_urls:
             status = "OK " if r.success else "ERR"
             print(f"  [{status}] {r.url}")
+        else:
+            print(f"  [{'content' if has_content else 'empty  '}] {r.url}")
+    if debug_urls:
         print()
 
     all_jobs: List[JobListing] = []
